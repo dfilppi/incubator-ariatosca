@@ -146,14 +146,12 @@ class InterfaceAssignment(ExtensiblePresentation):
 
             if isinstance(self._container._container, RequirementAssignment):
                 # In RequirementAssignment
-                requirement_definition = self._container._container._get_definition(context)
-                if requirement_definition is not None:
-                    relationship_definition = requirement_definition.relationship
-                    if relationship_definition is not None:
-                        interface_definitions = relationship_definition.interfaces
-                        if interface_definitions is not None:
-                            if self._name in interface_definitions:
-                                return interface_definitions[self._name]._get_type(context)
+                relationship_definition = \
+                    self._container._container._get_relationship_definition(context)
+                interface_definitions = relationship_definition.interfaces \
+                    if relationship_definition is not None else None
+                if (interface_definitions is not None) and (self._name in interface_definitions):
+                    return interface_definitions[self._name]._get_type(context)
 
         interface_definitions = the_type._get_interfaces(context) \
             if the_type is not None else None
@@ -310,6 +308,11 @@ class RequirementAssignment(ExtensiblePresentation):
                 if name == self._name:
                     return requirement
         return None
+
+    @cachedmethod
+    def _get_relationship_definition(self, context):
+        requirement_definition = self._get_definition(context)
+        return requirement_definition.relationship if requirement_definition is not None else None
 
     @cachedmethod
     def _get_capability(self, context):

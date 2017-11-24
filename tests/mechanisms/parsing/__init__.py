@@ -27,7 +27,10 @@ class Parsed(object):
         self.verbose = False
 
     def assert_success(self):
-        __tracebackhide__ = True # pylint: disable=unused-variable
+        # See: https://docs.pytest.org/en/latest/example/simple.html
+        #      #writing-well-integrated-assertion-helpers
+        __tracebackhide__ = True                                                                    # pylint: disable=unused-variable
+
         if len(self.issues) > 0:
             pytest.fail(u'did not expect parsing errors\n\n{0}\n\n{1}'
                         .format(self.text.strip(), u'\n'.join(self.issues)))
@@ -37,7 +40,10 @@ class Parsed(object):
                 print self.text.strip()
 
     def assert_failure(self):
-        __tracebackhide__ = True # pylint: disable=unused-variable
+        # See: https://docs.pytest.org/en/latest/example/simple.html
+        #      #writing-well-integrated-assertion-helpers
+        __tracebackhide__ = True                                                                    # pylint: disable=unused-variable
+
         if len(self.issues) > 0:
             if self.verbose:
                 print LINE_BREAK

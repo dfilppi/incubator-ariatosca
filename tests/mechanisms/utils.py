@@ -24,10 +24,13 @@ def matrix(*iterables, **kwargs):
     with the added ability to "flatten" each value by breaking up tuples and recombining them into a
     final flat value.
 
-    To do such recombination, use the ``counts`` argument (tuple) to specify the number of elements
-    per value in order. Any count greater than 1 (the default) enables recombination of that value.
+    To do such recombination, use the ``counts`` argument (tuple of integers) to specify the number
+    of elements per value in each iterable in order. Any count greater than 1 (the default) enables
+    recombination of the iterable's values. So, if you are combining three different iterables, then
+    you want ``counts`` to be a tuple of three integers. The first integer in the ``counts`` tuple
+    will be the number of elements in the values of the first iterable, etc.
 
-    Example::
+    Detailed example::
 
       x = ('hello', 'goodbye')
       y = ('Linus', 'Richard')
@@ -38,11 +41,17 @@ def matrix(*iterables, **kwargs):
         ('goodbye', 'Richard')
 
       y = (('Linus', 'Torvalds'), ('Richard', 'Stallman'))
+
+      # Without flattening:
+
       matrix(x, y) ->
         ('hello', ('Linus', 'Torvalds')),
         ('hello', ('Richard', 'Stallman')),
         ('goodbye', ('Linus', 'Torvalds')),
         ('goodbye', ('Richard', 'Stallman'))
+
+      # The values in our second iterable, y, have two elements that we want to flatten, so we will
+      # set the second "count" value to 2:
 
       matrix(x, y, counts=(1, 2)) ->
         ('hello', 'Linus', 'Torvalds'),

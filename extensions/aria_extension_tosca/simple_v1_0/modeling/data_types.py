@@ -320,9 +320,9 @@ def apply_constraint_to_value(context, presentation, constraint_clause, value): 
 def get_data_type_value(context, presentation, field_name, type_name):
     value = getattr(presentation, field_name)
     if value is not None:
-        the_type = get_type_by_name(context, type_name, 'data_types')
-        if the_type is not None:
-            return coerce_data_type_value(context, presentation, the_type, None, None, value, None)
+        data_type = get_type_by_name(context, type_name, 'data_types')
+        if data_type is not None:
+            return coerce_data_type_value(context, presentation, data_type, None, None, value, None)
         else:
             context.validation.report(u'field "{0}" in "{1}" refers to unknown data type "{2}"'
                                       .format(field_name, presentation._fullname, type_name),

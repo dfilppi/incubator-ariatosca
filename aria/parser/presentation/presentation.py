@@ -199,6 +199,7 @@ class Presentation(PresentationBase):
     """
 
     def _validate(self, context):
+        # Allow the skipping of normative type validation (for improved performance)
         if (not context.presentation.configuration.get('validate_normative', True)) \
             and self._get_extension('normative'):
             return

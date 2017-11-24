@@ -10,8 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ...utils.yaml import yaml # @UnresolvedImport
-
+from ...utils.yaml import yaml
 from ...utils.collections import OrderedDict
 from .reader import Reader
 from .locator import Locator
@@ -19,8 +18,11 @@ from .exceptions import ReaderSyntaxError
 from .locator import (LocatableString, LocatableInt, LocatableFloat)
 
 
-MERGE_TAG = u'tag:yaml.org,2002:merge'
+# YAML mapping tag
 MAP_TAG = u'tag:yaml.org,2002:map'
+
+# This is an internal tag used by ruamel.yaml for merging nodes
+MERGE_TAG = u'tag:yaml.org,2002:merge'
 
 
 # Add our types to RoundTripRepresenter
@@ -33,6 +35,9 @@ yaml.representer.RoundTripRepresenter.add_representer(
 
 
 def construct_yaml_map(self, node):
+    """
+    Replacement for ruamel.yaml's constructor that uses OrderedDict instead of dict.
+    """
     data = OrderedDict()
     yield data
     value = self.construct_mapping(node)

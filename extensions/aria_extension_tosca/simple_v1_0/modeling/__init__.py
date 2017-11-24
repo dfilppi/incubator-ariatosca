@@ -664,18 +664,18 @@ def create_constraint(context, node_filter, constraint_clause, property_name, ca
 
     constraint_key = constraint_clause._raw.keys()[0]
 
-    the_type = constraint_clause._get_type(context)
+    value_type = constraint_clause._get_type(context)
 
-    def coerce_constraint(constraint, the_type=the_type):
-        if the_type is not None:
-            return coerce_value(context, node_filter, the_type, None, None, constraint,
+    def coerce_constraint(constraint, value_type=value_type):
+        if value_type is not None:
+            return coerce_value(context, node_filter, value_type, None, None, constraint,
                                 constraint_key)
         else:
             return constraint
 
-    def coerce_constraints(constraints, the_type=the_type):
-        if the_type is not None:
-            return tuple(coerce_constraint(constraint, the_type) for constraint in constraints)
+    def coerce_constraints(constraints, value_type=value_type):
+        if value_type is not None:
+            return tuple(coerce_constraint(constraint, value_type) for constraint in constraints)
         else:
             return constraints
 

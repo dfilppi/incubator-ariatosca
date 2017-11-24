@@ -46,19 +46,19 @@ class Read(Consumer):
 
     def consume(self):
         # Present the main location and all imports recursively
-        main, results = self._present_all()
+        main_result, all_results = self._present_all()
 
         # Merge presentations
-        main.merge(results, self.context)
+        main_result.merge(all_results, self.context)
 
         # Cache merged presentations
         if self.context.presentation.cache:
-            for result in results:
+            for result in all_results:
                 result.cache()
 
-        self.context.presentation.presenter = main.presentation
-        if main.canonical_location is not None:
-            self.context.presentation.location = main.canonical_location
+        self.context.presentation.presenter = main_result.presentation
+        if main_result.canonical_location is not None:
+            self.context.presentation.location = main_result.canonical_location
 
     def dump(self):
         if self.context.has_arg_switch('yaml'):
@@ -73,11 +73,18 @@ class Read(Consumer):
             self.context.presentation.presenter._dump(self.context)
 
     def _handle_exception(self, e):
-        if isinstance(e, _Skip):
+        if isinstance(e, _CancelPresentation):
             return
         super(Read, self)._handle_exception(e)
 
     def _present_all(self):
+        """
+        Presents all locations, including all nested imports, from the main location. Uses a thread
+        pool executor for best performance.
+
+        The main presentation is returned separately for easier access.
+        """
+
         location = self.context.presentation.location
 
         if location is None:
@@ -87,7 +94,7 @@ class Read(Consumer):
         executor = self.context.presentation.create_executor()
         try:
             # This call may recursively submit tasks to the executor if there are imports
-            main = self._present(location, None, None, executor)
+            main_result = self._present(location, None, None, executor)
 
             # Wait for all tasks to complete
             executor.drain()
@@ -96,15 +103,22 @@ class Read(Consumer):
             for e in executor.exceptions:
                 self._handle_exception(e)
 
-            results = executor.returns or []
+            all_results = executor.returns or []
         finally:
             executor.close()
 
-        results.insert(0, main)
+        all_results.insert(0, main_result)
 
-        return main, results
+        return main_result, all_results
 
     def _present(self, location, origin_canonical_location, origin_presenter_class, executor):
+        """
+        Presents a single location. If the location has imports, those are submitted to the thread
+        pool executor.
+
+        Supports a presentation cache based on the canonical location as cache key.
+        """
+
         # Link the context to this thread
         self.context.set_thread_local()
 
@@ -118,7 +132,7 @@ class Read(Consumer):
 
         # Skip self imports
         if canonical_location == origin_canonical_location:
-            raise _Skip()
+            raise _CancelPresentation()
 
         if self.context.presentation.cache:
             # Is the presentation in the global cache?
@@ -154,9 +168,10 @@ class Read(Consumer):
         loader = self.context.loading.loader_source.get_loader(self.context.loading, location,
                                                                origin_canonical_location)
 
-        canonical_location = None
-
         if origin_canonical_location is not None:
+            # The cache key is is a combination of the canonical location of the origin, which is
+            # globally absolute and never changes, and our location, which might be relative to
+            # the origin's location
             cache_key = (origin_canonical_location, location)
             try:
                 canonical_location = CANONICAL_LOCATION_CACHE[cache_key]
@@ -210,6 +225,11 @@ class Read(Consumer):
 
 
 class _Result(object):
+    """
+    The result of a :meth:`Read._present` call. Contains the read presentation itself, as well as
+    extra fields to help caching and keep track of merging.
+    """
+
     def __init__(self, presentation, canonical_location, origin_canonical_location):
         self.presentation = presentation
         self.canonical_location = canonical_location
@@ -261,5 +281,5 @@ class _Result(object):
         PRESENTATION_CACHE[self.canonical_location] = self.presentation
 
 
-class _Skip(Exception):
+class _CancelPresentation(Exception):
     pass

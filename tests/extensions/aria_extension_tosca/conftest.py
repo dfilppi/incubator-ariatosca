@@ -17,6 +17,9 @@
 PyTest configuration module.
 
 Add support for a "--tosca-parser" CLI option.
+
+For more information on PyTest hooks, see the `PyTest documentation
+<https://docs.pytest.org/en/latest/writing_plugins.html#pytest-hook-reference>`__.
 """
 
 import pytest

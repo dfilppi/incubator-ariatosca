@@ -34,7 +34,7 @@ except ImportError:
 def cls_name(cls):
     module = str(cls.__module__)
     name = str(cls.__name__)
-    return name if module == '__builtin__' else '%s.%s' % (module, name)
+    return name if module == '__builtin__' else '{0}.{1}'.format(module, name)
 
 
 class FrozenList(list):
@@ -145,7 +145,8 @@ class StrictList(list):
 
     def _wrap(self, value):
         if (self.value_class is not None) and (not isinstance(value, self.value_class)):
-            raise TypeError('value must be a "%s": %s' % (cls_name(self.value_class), repr(value)))
+            raise TypeError('value must be a "{0}": {1}'
+                            .format(cls_name(self.value_class), repr(value)))
         if self.wrapper_function is not None:
             value = self.wrapper_function(value)
         return value
@@ -209,7 +210,8 @@ class StrictDict(OrderedDict):
 
     def __getitem__(self, key):
         if (self.key_class is not None) and (not isinstance(key, self.key_class)):
-            raise TypeError('key must be a "%s": %s' % (cls_name(self.key_class), repr(key)))
+            raise TypeError('key must be a "{0}": {1}'
+                            .format(cls_name(self.key_class), repr(key)))
         value = super(StrictDict, self).__getitem__(key)
         if self.unwrapper_function is not None:
             value = self.unwrapper_function(value)
@@ -217,9 +219,11 @@ class StrictDict(OrderedDict):
 
     def __setitem__(self, key, value, **_):
         if (self.key_class is not None) and (not isinstance(key, self.key_class)):
-            raise TypeError('key must be a "%s": %s' % (cls_name(self.key_class), repr(key)))
+            raise TypeError('key must be a "{0}": {1}'
+                            .format(cls_name(self.key_class), repr(key)))
         if (self.value_class is not None) and (not isinstance(value, self.value_class)):
-            raise TypeError('value must be a "%s": %s' % (cls_name(self.value_class), repr(value)))
+            raise TypeError('value must be a "{0}": {1}'
+                            .format(cls_name(self.value_class), repr(value)))
         if self.wrapper_function is not None:
             value = self.wrapper_function(value)
         return super(StrictDict, self).__setitem__(key, value)
@@ -228,6 +232,14 @@ class StrictDict(OrderedDict):
 def merge(dict_a, dict_b, copy=True, strict=False, path=None):
     """
     Merges dicts, recursively.
+
+    :param dict_a: target dict (will be modified)
+    :param dict_b: source dict (will not be modified)
+    :param copy: if True, will use :func:`deepcopy_fast` on each merged element
+    :param strict: if True, will raise a ValueError if there are key conflicts, otherwise will
+     override exiting values
+    :param path: for internal use in strict mode
+    :return: dict_a, after the merge
     """
 
     # TODO: a.add_yaml_merge(b),
@@ -244,7 +256,8 @@ def merge(dict_a, dict_b, copy=True, strict=False, path=None):
                 merge(value_a, value_b, copy, strict, path)
             elif value_a != value_b:
                 if strict:
-                    raise ValueError('dict merge conflict at %s' % '.'.join(path + [str(key)]))
+                    raise ValueError('dict merge conflict at {0}'
+                                     .format('.'.join(path + [str(key)])))
                 else:
                     dict_a[key] = deepcopy_fast(value_b) if copy else value_b
         else:

@@ -57,9 +57,8 @@ def install_aria_extensions(strict=True):
         if module_name.startswith('aria_extension_'):
             loader.find_module(module_name).load_module(module_name)
     for entry_point in pkg_resources.iter_entry_points(group='aria_extension'):
-        # It should be possible to enable non strict loading - use the package
-        # that is already installed inside the environment, and forego the
-        # version demand
+        # It should be possible to enable non strict loading - use the package that is already
+        # installed inside the environment, and forgo the version demand
         if strict:
             entry_point.load()
         else:
