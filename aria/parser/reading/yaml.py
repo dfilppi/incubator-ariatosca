@@ -92,7 +92,7 @@ class YamlReader(Reader):
             try:
                 # Faster C-based loader, might not be available on all platforms
                 yaml_loader = yaml.CSafeLoader(data)
-            except BaseException:
+            except Exception:
                 yaml_loader = yaml.SafeLoader(data)
             try:
                 node = yaml_loader.get_single_node()

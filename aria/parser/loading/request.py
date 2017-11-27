@@ -71,6 +71,9 @@ class RequestLoader(Loader):
             self._response = None
             raise LoaderException(u'request error {0:d}: "{1}"'.format(status, self.uri))
 
+    def get_canonical_location(self):
+        raise NotImplementedError
+
 
 class RequestTextLoader(RequestLoader):
     """
@@ -86,3 +89,6 @@ class RequestTextLoader(RequestLoader):
             except Exception as e:
                 raise LoaderException(u'request error: {0}'.format(self.uri), cause=e)
         return None
+
+    def get_canonical_location(self):
+        raise NotImplementedError

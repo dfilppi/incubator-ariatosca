@@ -53,7 +53,7 @@ def test_version_string():
     assert VersionString() == VersionString()
     assert VersionString() == VersionString.NULL
     assert VersionString(None) == VersionString.NULL
-    assert VersionString.NULL == None # pylint: disable=singleton-comparison
+    assert VersionString.NULL == None                                                               # pylint: disable=singleton-comparison
     assert VersionString.NULL == 0
 
     # Invalid version strings

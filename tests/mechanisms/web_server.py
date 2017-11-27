@@ -75,7 +75,7 @@ class WebServer(threading.Thread):
 
 
 class TextHandler(tornado.web.RequestHandler):
-    def initialize(self, content, content_type): # pylint: disable=arguments-differ
+    def initialize(self, content, content_type):                                                    # pylint: disable=arguments-differ
         self.content = content
         self.content_type = content_type
 

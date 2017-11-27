@@ -181,7 +181,10 @@ class Read(Consumer):
         else:
             cache_key = None
 
-        canonical_location = loader.get_canonical_location()
+        try:
+            canonical_location = loader.get_canonical_location()
+        except NotImplementedError:
+            canonical_location = None
 
         # Because retrieving the canonical location can be costly, we will try to cache it
         if cache_key is not None:

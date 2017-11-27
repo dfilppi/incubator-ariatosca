@@ -63,3 +63,6 @@ class FileTextLoader(Loader):
             except Exception as e:
                 raise LoaderException(u'file error {0}'.format(self.path), cause=e)
         return None
+
+    def get_canonical_location(self):
+        raise NotImplementedError
