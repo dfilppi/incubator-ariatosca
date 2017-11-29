@@ -28,7 +28,6 @@ except ImportError:
 import aria
 from aria.modeling import models
 from aria.orchestrator import events
-from aria.orchestrator.workflows.core import events_handler
 from aria.orchestrator.workflows.executor import (
     thread,
     process,
